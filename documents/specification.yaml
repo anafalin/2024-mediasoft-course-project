@@ -1,0 +1,598 @@
+openapi: 3.0.3
+info:
+  title: Warehouse API
+  description: API for work warehouse
+  contact:
+    name: Lazarenko Anastasia
+    email: afalin.itgenius@gmail.com
+    url: https://github.com/AnAfalin
+  version: 1.0.0
+
+servers:
+  - url: https://localhost:8080/api
+
+tags:
+  - name: categories
+    description: Операции с категориями товаров, доступные всем пользователям приложения
+  - name: products
+    description: Операции с товарами, доступные всем пользователям приложения
+
+paths:
+  /categories:
+    get:
+      tags:
+        - categories
+      summary: Получение списка всех категорий
+      description: Returns a list of categories
+      operationId: getAllCategories
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponseDto'
+
+    post:
+      tags:
+        - categories
+      summary: Добавление новой категории
+      description: Create new category
+      operationId: addCategory
+      requestBody:
+        description: Created category object
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CategoryCreateUpdateRequestDto'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 01acf9d-705a-4511-9ac9-2b859788ad7f
+        '409':
+          description: category name is not unique
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Category with name 'Category name from request' already exists
+                  time:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: CONFLICT
+
+  /categories/{categoryId}:
+    patch:
+      tags:
+        - categories
+      summary: Обновление категории
+      description: Update category by id
+      operationId: updateCategory
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of category for update
+          required: true
+          schema:
+            type: string
+            example: '301acf9d-705a-4511-9ac9-2b859788ad7f'
+      requestBody:
+        description: Updated category object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateUpdateRequestDto'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 01acf9d-705a-4511-9ac9-2b859788ad7f
+        '404':
+          description: category not found
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Category with id='01acf9d-705a-4511-9ac9-2b859788ad7f' not found
+                  time:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: NOT FOUND
+                    
+    delete:
+      tags:
+        - categories
+      summary: Удаление категории
+      description: Delete category by id
+      operationId: deleteCategory
+      parameters:
+        - name: categoryId
+          in: path
+          description: ID of category for update
+          required: true
+          schema:
+            type: string
+            example: '301acf9d-705a-4511-9ac9-2b859788ad7f'
+      responses:
+        '201':
+          description: successful operation
+        '404':
+          description: category not found
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Category with id='01acf9d-705a-4511-9ac9-2b859788ad7f' not found
+                  time:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: NOT FOUND
+
+  /products:
+    get:
+      tags:
+        - products
+      summary: Получение всех продуктов с пагинацией
+      description: Returns products by pagination
+      operationId: getProducts
+      parameters:
+        - name: size
+          in: header
+          description: count result objects in the one page
+          required: true
+          schema:
+            type: string
+            example: 4
+        - name: page
+          in: header
+          description: number of page for show
+          required: true
+          schema:
+            type: string
+            example: 1
+        - name: sort
+          in: header
+          description: field and direction by sort 
+          required: true
+          schema:
+            type: string
+            example: category,ASC           
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponseDto'
+
+    post:
+      tags:
+        - products
+      summary: Добавление нового товара
+      description: Create new product
+      operationId: addProduct
+      requestBody:
+        description: Created product object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequestDto'
+      responses:
+        '201':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 01acf9d-705a-4511-9ac9-2b859788ad7f
+        '409':
+          description: CONFLICT error operation
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Product with name='Product name from request' already exist
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: CONFLICT
+        '404':
+          description: Not found error operation
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Category with name='Category name from request' not found
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: Not found
+
+  /products/{productId}:
+    get:
+      tags:
+        - products
+      summary: Получение продукта по id
+      description: Returns a product by id
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: string
+            example: 301acf9d-705a-4511-9ac9-2b859788ad7f
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponseDto'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Product with id='301acf9d-705a-4511-9ac9-2b859788ad7f' not found
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: Not Fount
+
+    patch:
+      tags:
+        - products
+      summary: Обновление продукта по id
+      description: Update product by id
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product for update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated product object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateUpdateRequestDto'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+                example: 01acf9d-705a-4511-9ac9-2b859788ad7f
+        '404':
+          description: Product not found or new Category not found
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Product with id='301acf9d-705a-4511-9ac9-2b859788ad7f' not found
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: Not Fount
+
+    delete:
+      tags:
+        - products
+      summary: Удаление продукта по id
+      description: Delete a product by id
+      operationId: deleteProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product for delete
+          required: true
+          schema:
+            type: string
+            example: '301acf9d-705a-4511-9ac9-2b859788ad7f'
+      responses:
+        '200':
+          description: successful operation
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                required:
+                  - message
+                  - timestamp
+                  - status
+                properties:
+                  message:
+                    type: string
+                    example: Product with id='301acf9d-705a-4511-9ac9-2b859788ad7f' not found
+                  timestamp:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    example: Not Fount
+
+components:
+  schemas:
+    CategoryDto:
+      required:
+        - id
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          example: 9556dfa8-3eca-47ab-8f05-4143e8b4aa63
+        name:
+          type: string
+          example: Category name
+
+    CategoryCreateUpdateRequestDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          example: Category name
+          minLength: 1
+          nullable: false
+
+    CategoryResponseDto:
+      required:
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          example: Category name
+          minLength: 1
+          nullable: false
+
+    ProductCreateUpdateRequestDto:
+      required:
+        - name
+        - articleNumber
+        - description
+        - price
+        - quantity
+        - category
+      type: object
+      properties:
+        name:
+          type: string
+          example: Product name
+          description: Название
+          nullable: false
+        articleNumber:
+          type: string
+          example: 348764
+          description: Уникальный артикул
+          nullable: false
+        description:
+          type: string
+          example: Description of product
+          description: Описание
+          nullable: false
+          minLength: 1
+        price:
+          type: number
+          format: double
+          example: 720
+          description: Цена
+          nullable: false
+          minimum: 10
+        quantity:
+          type: integer
+          format: int32
+          example: 10
+          description: Количество в наличии
+          nullable: false
+          minimum: 0
+        category:
+          type: string
+          example: Category name
+
+    ProductDto:
+      required:
+        - uuid
+        - name
+        - articleNumber
+        - description
+        - price
+        - quantity
+        - category
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: 02c32967-7292-45b4-8a2f-47058d5d045f
+          description: id товара
+        name:
+          type: string
+          example: Product name
+          description: Название
+        articleNumber:
+          type: string
+          example: 348764
+          description: Уникальный артикул
+        description:
+          type: string
+          example: Description of product
+          description: Описание
+        price:
+          type: number
+          format: double
+          example: 720
+          description: Цена
+        quantity:
+          type: integer
+          format: int32
+          example: 10
+          description: Количество в наличии
+        category:
+          type: string
+          example: Category name
+
+    ProductInfoDto:
+      required:
+        - name
+        - articleNumber
+        - description
+        - price
+        - quantity
+        - category
+        - dateTimeLastEdit
+        - dateCreation
+        - isAvailable
+      type: object
+      properties:
+        name:
+          type: string
+          example: Product name
+          description: Название
+        articleNumber:
+          type: string
+          example: 348764
+          description: Уникальный артикул
+        description:
+          type: string
+          example: Description of product
+          description: Описание
+        price:
+          type: number
+          format: double
+          example: 720
+          description: Цена
+        quantity:
+          type: integer
+          format: int32
+          example: 10
+          description: Количество в наличии
+        category:
+          type: string
+          example: Category name
+        dateTimeLastEdit:
+          type: string
+          format: date-time
+          example: '2017-07-21T17:32:28Z'
+        dateCreation:
+          type: string
+          format: date
+          example: '2017-05-11'
+        isAvailable:
+          type: string 
+          format: boolean
+          example: true
+
+    ProductResponseDto:
+      required:
+        - name
+        - articleNumber
+        - description
+        - price
+        - quantity
+        - category
+      type: object
+      properties:
+        name:
+          type: string
+          example: Product name
+          description: Название
+        articleNumber:
+          type: string
+          example: 348764
+          description: Уникальный артикул
+        description:
+          type: string
+          example: Description of product
+          description: Описание
+        price:
+          type: number
+          format: double
+          example: 720
+          description: Цена
+        quantity:
+          type: integer
+          format: int32
+          example: 10
+          description: Количество в наличии
+        category:
+          $ref: '#/components/schemas/CategoryResponseDto'
