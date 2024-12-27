@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="1" author="Lazarenko Anastasia">
+        <createTable tableName="category">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(20)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="2" author="Lazarenko Anastasia">
+        <createTable tableName="product">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="name" type="varchar(255)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="article_number" type="char(10)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+
+            <column name="description" type="text">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="price" type="numeric(10,2)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="quantity" type="numeric(10,2)" defaultValue="0.0">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="is_available" type="boolean" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date_time_last_edit" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="date_creation" type="date">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="category_id" type="uuid">
+                <constraints foreignKeyName="fk_product_category_id"
+                             referencedColumnNames="id"
+                             referencedTableName="category"
+                             nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    active: ${profile:local}
+
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/changelog-master.xml

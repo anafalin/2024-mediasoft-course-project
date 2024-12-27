@@ -1,0 +1,31 @@
+version: '3.1'
+
+services:
+  warehouse:
+    build: ../2024-mediasoft-course-project
+    image: warehouse_service_image
+    container_name: warehouse_warehouse_service
+    depends_on:
+      - mediasoft-warehouse-database
+    ports:
+      - "8080:8080"
+    environment:
+      - db_url=jdbc:postgresql://mediasoft_warehouse_db:5432/warehouse
+      - username=admin
+      - password=warehousepass
+      - profile=docker
+
+  mediasoft-warehouse-database:
+    image: postgres:14-alpine
+    container_name: mediasoft_warehouse_db
+    volumes:
+      - mediasoft-warehouse-data:/var/lib/postgres
+    ports:
+      - "5434:5434"
+    environment:
+      - POSTGRES_DB=warehouse
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=warehousepass
+
+volumes:
+  mediasoft-warehouse-data:

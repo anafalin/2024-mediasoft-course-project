@@ -1,0 +1,467 @@
+{
+	"info": {
+		"_postman_id": "8658f642-7444-4736-8044-b64a5b74435c",
+		"name": "warehouse",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "35182584"
+	},
+	"item": [
+		{
+			"name": "Create category",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const n = 10; // Количество объектов, которые создаем\r",
+							"const baseName = \"Category \"; // Базовое имя\r",
+							"\r",
+							"// Функция для создания запросов\r",
+							"const createRequests = () => {\r",
+							"    for (let i = 1; i <= n; i++) {\r",
+							"        const requestName = `${baseName}${i}`;\r",
+							"        \r",
+							"        pm.sendRequest({\r",
+							"            url: 'http://localhost:8080/api/categories', \r",
+							"            method: 'POST',\r",
+							"            header: 'Content-Type: application/json',\r",
+							"            body: {\r",
+							"                mode: 'raw',\r",
+							"                raw: JSON.stringify({ name: requestName }) \r",
+							"            }\r",
+							"        }, (err, response) => {\r",
+							"            if (err) {\r",
+							"                console.error(err);\r",
+							"            } else {\r",
+							"                console.log(`Создан объект: ${requestName}`, response);\r",
+							"            }\r",
+							"        });\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"// Вызов функции\r",
+							"createRequests();"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status is 201, with body and string is response body\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.string;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \r\n    \"name\": \"Category Test\" \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/categories",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create products - 404 Not found category",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains fields 'message', 'exceptionName'\", () => {\r",
+							"    pm.response.to.have.jsonBody(\"message\");\r",
+							"    pm.response.to.have.jsonBody(\"exceptionName\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"product\",\r\n    \"articleNumber\" : \"0\",\r\n    \"description\":\"description\",\r\n    \"price\": 150,\r\n    \"quantity\": 1,\r\n    \"category\":\"uncorrect category\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create products - 201 Created",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const n = 100; // Количество объектов, которые создаем\r",
+							"const nameProduct = \"Product \"; \r",
+							"const nameCategory = \"Category \"; \r",
+							"\r",
+							"const createRequests = () => {\r",
+							"    let c = 1;\r",
+							"    for (let i = 1; i <= n; i++) {\r",
+							"        if(i % 10 == 0) {\r",
+							"            c = c + 1;\r",
+							"        }\r",
+							"        const requestProductName = `${nameProduct}${i}`;\r",
+							"        const requestCategoryName = `${nameCategory}${c}`;\r",
+							"        const requestPrice = Math.floor(Math.random() * 1000);\r",
+							"        const requestQuantity = Math.floor(Math.random() * 100);\r",
+							"\r",
+							"        pm.sendRequest({\r",
+							"            url: 'http://localhost:8080/api/products', \r",
+							"            method: 'POST',\r",
+							"            header: 'Content-Type: application/json',\r",
+							"            body: {\r",
+							"                mode: 'raw',\r",
+							"                raw: JSON.stringify(\r",
+							"                    {\r",
+							"                        name : requestProductName,\r",
+							"                        articleNumber : i,\r",
+							"                        description : \"description\",\r",
+							"                        price : requestPrice,\r",
+							"                        quantity : requestQuantity,\r",
+							"                        category : requestCategoryName\r",
+							"                    }\r",
+							"                ) \r",
+							"            }\r",
+							"        }, (err, response) => {\r",
+							"            if (err) {\r",
+							"                console.error(err);\r",
+							"            } else {\r",
+							"                console.log(`Создан объект: ${requestProductName}`, response);\r",
+							"            }\r",
+							"        });\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"// Вызов функции\r",
+							"createRequests();"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response status is 201, with body and string is response body\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.string;\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"product\",\r\n    \"articleNumber\" : \"0\",\r\n    \"description\":\"description\",\r\n    \"price\": 150,\r\n    \"quantity\": 1,\r\n    \"category\":\"Category Test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create products - 400 Bad request, not unique product",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const n = 100; // Количество объектов, которые создаем\r",
+							"const nameProduct = \"Product \"; \r",
+							"const nameCategory = \"Category\"; \r",
+							"\r",
+							"const createRequests = () => {\r",
+							"    let c = 1;\r",
+							"    for (let i = 1; i <= n; i++) {\r",
+							"        if(i % 10 == 0) {\r",
+							"            c = c + 1;\r",
+							"        }\r",
+							"        const requestProductName = `${nameProduct}${i}`;\r",
+							"        const requestCategoryName = `${nameCategory}${c}`;\r",
+							"        const requestPrice = Math.floor(Math.random() * 1000);\r",
+							"        const requestQuantity = Math.floor(Math.random() * 100);\r",
+							"\r",
+							"        pm.sendRequest({\r",
+							"            url: 'http://localhost:8080/api/products', \r",
+							"            method: 'POST',\r",
+							"            header: 'Content-Type: application/json',\r",
+							"            body: {\r",
+							"                mode: 'raw',\r",
+							"                raw: JSON.stringify(\r",
+							"                    {\r",
+							"                        name : requestProductName,\r",
+							"                        articleNumber : i,\r",
+							"                        description : \"description\",\r",
+							"                        price : requestPrice,\r",
+							"                        quantity : requestQuantity,\r",
+							"                        category : requestCategoryName\r",
+							"                    }\r",
+							"                ) \r",
+							"            }\r",
+							"        }, (err, response) => {\r",
+							"            if (err) {\r",
+							"                console.error(err);\r",
+							"            } else {\r",
+							"                console.log(`Создан объект: ${requestProductName}`, response);\r",
+							"            }\r",
+							"        });\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"// Вызов функции\r",
+							"createRequests();"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains fields 'message', 'exceptionName'\", () => {\r",
+							"    pm.response.to.have.jsonBody(\"message\");\r",
+							"    pm.response.to.have.jsonBody(\"exceptionName\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\":\"product\",\r\n    \"articleNumber\" : \"0\",\r\n    \"description\":\"description\",\r\n    \"price\": 150,\r\n    \"quantity\": 1,\r\n    \"category\":\"Category Test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get product by id",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response contains fields 'message', 'exceptionName'\", () => {\r",
+							"    pm.response.to.have.jsonBody(\"message\");\r",
+							"    pm.response.to.have.jsonBody(\"exceptionName\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/products/1ffe46d2-7706-48ab-9c16-98291af9a829",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"products",
+						"1ffe46d2-7706-48ab-9c16-98291af9a829"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get products with pageable",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.be.withBody;\r",
+							"    pm.response.to.be.json;\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/products?page=0&size=4&sort=category,ASC",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"products"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0"
+						},
+						{
+							"key": "size",
+							"value": "4"
+						},
+						{
+							"key": "sort",
+							"value": "category,ASC"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
